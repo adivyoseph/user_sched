@@ -44,8 +44,43 @@ func main() {
 	fmt.Printf("0   L3CacheMon      %d\n", int(d>>1))
 	fmt.Printf("\nPQM  L3 Cache Monitoring Capabilities \n")
 	a, b, c, d = myCpuidex(0xf, 1)
-	fmt.Printf("1   CounterSize        %d\n", int(cd))
-	fmt.Printf("1   L3CacheMon      %d\n", int(d>>1))
+	fmt.Printf("1   CounterSize      %d\n", int(a&0xf))
+	fmt.Printf("1   ScaleFactor      %d\n", int(b))
+	fmt.Printf("1   Max_RMIDr        %d\n", int(c))
+	fmt.Printf("1  L3CacheBWMonEvt1  %d\n", int((d>>2)&0x1))
+	fmt.Printf("1  L3CacheBWMonEvt0  %d\n", int((d>>1)&0x1))
+	fmt.Printf("1  L3CacheOccMon     %d\n", int(d&0x1))
+	fmt.Printf("\nPQOS Enforcement (PQE) \n")
+	_, _, _, d = myCpuidex(0x10, 0)
+	fmt.Printf("0   L3Alloc         %d\n", int((d>>1)&0x1))
+	fmt.Printf("\nPQOS L3 Cache Allocation Enforcement Capabilities \n")
+	a, b, c, d = myCpuidex(0x10, 1)
+	fmt.Printf("1   CBM_LEN          %d\n", int(a&0xf))
+	fmt.Printf("1   L3ShareAllocMask %0X\n", int(b))
+	fmt.Printf("0   CDP              %d\n", int((c>>2)&0x1))
+	fmt.Printf("0   COS_MAX          %d\n", int(d&0xff))
+	fmt.Printf("\nCache Topology Information\n")
+	var i uint32
+	i = 0
+	exit := 1
+	for exit > 0 {
+		a, b, c, d = myCpuidex(0x8000001d, i)
+
+		if (a & 0xf) == 0 {
+			exit = 0
+		} else {
+			fmt.Printf("%d level %d type %d\n", i, int((a>>5)&0x7), int(a&0x3))
+			fmt.Printf("\t CacheNumWays %d CacheNumSets %d CacheInclusive %d\n", int(b>>22), int(c), int((d>>1)&0x1))
+			i++
+		}
+	}
+	/*	for i = 1; i <= 16; i++ {
+			_, b, c, _ = myCpuidex(0x8000001e, i)
+			fmt.Printf("%02d ComputeUnitId %d threads %d\n", i, int(b&0xff), int((b>>8)&0xff)+1)
+			fmt.Printf("\t NodeId %d NodesPerProcessor %d\n", int(c&0xff), int((c>>8)&0xff)+1)
+		}
+	*/
+
 }
 
 func isAmd() bool {
