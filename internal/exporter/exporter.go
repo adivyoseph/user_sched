@@ -82,7 +82,8 @@ func Exporter_main() {
 		for {
 			readState()
 			for c := 0; c < state.chipletCnt; c++ {
-				chipletName := fmt.Sprintf("%s%03d", state.chipletPrefString, c)
+				//chipletName := fmt.Sprintf("%s%03d", state.chipletPrefString, c)
+				chipletName := fmt.Sprintf("%d", c)
 				t := 0
 				powerLevel := 0
 				if chiplets.Chiplets[c].PowerState == "low " {
@@ -98,10 +99,10 @@ func Exporter_main() {
 				//fmt.Printf("%s %s %f %s\n", chipletName, state.typeString[t], float64(powerLevel), chiplets.Chiplets[c].PowerState)
 				//freq
 				//request
-				requests := chiplets.Chiplets[c].Requests / 160
+				requests := chiplets.Chiplets[c].Requests /// 160
 				chipletStats.WithLabelValues(chipletName, state.typeString[1]).Set(float64(requests))
 				//pod count
-				podCnt := len(chiplets.Chiplets[c].Pods) * 5
+				podCnt := len(chiplets.Chiplets[c].Pods) // * 5
 				chipletStats.WithLabelValues(chipletName, state.typeString[2]).Set(float64(podCnt))
 				fmt.Printf("%s %s %03.1f %3d \trequests %05d\t power %s\n",
 					chipletName,
